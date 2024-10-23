@@ -3,7 +3,7 @@ import math
 
 def e_machine(states, transition_matrix, n: int):
     """
-        Generate a sequence of outputs and corresponding states based on labeled transition matrices
+        Generate a sequence of hidden states and their corresponding emissions 
 
         Parameters:
             states (list): list of state names as strings, same order as probability matrices
@@ -12,32 +12,38 @@ def e_machine(states, transition_matrix, n: int):
             n (int): length of sequence to output
 
         Returns:
-            two lists, one with the outputs and the other with the corresponding states
+            two lists, one with the hidden states sequence and the other with the corresponding emissions
     """
     hidden_states = []
     emissions = []
 
     # pick a random state to start with
-    state_index = np.random.choice(len(states))
+    # state_index = np.random.choice(len(states))
+    state_index = 1
     hidden_states.append(states[state_index])
+    print("starting state =", hidden_states)
 
     for i in range(n):
-        # get list of probabilities corresponding to state
-        prob_list = transition_matrix[state_index]
+        print("iteration", i)
+        # see transition_encoding.jpg to see how this 3-D matrix is stored in 2-D
 
-        # select transition (obtain its index)
-        index = np.random.choice(len(prob_list), p=prob_list)
+        # get column of probabilities corresponding to state
+        state_prob_list = transition_matrix[state_index]
 
-        # figure out emission and hidden state corresponding to transition
-        emission = math.floor(index/len(states))
-        state_index = index % 2 # number of emission possibilities
 
-        hidden_states.append(states[state_index])
+        # select transition index - this will be chosen with probability state_prob_list 
+        result_index = np.random.choice(len(state_prob_list), p=state_prob_list)
+
+        # if you see the encoding, you will see that the first 2 entries correspond to emission 0, and the next two will correspond to emmission 1 
+        # thus, we can use the .floor() function to see if the index corresponds to emission 0 or 1!
+        emission = math.floor(result_index / len(states))
         emissions.append(emission)
-    
+
+        #similarly, we use the index to find the state it corresponds to per our transition encoding
+        state_index = result_index % 2
+        hidden_states.append(states[state_index])
+
     return hidden_states, emissions
-
-
 def probability_rederivation(output_states: list, outputs: list):
     """
         Rederive the labelled transition matrices based on output and corresponding states
