@@ -14,28 +14,28 @@ def e_machine(states, transition_matrix, n: int):
         Returns:
             two lists, one with the outputs and the other with the corresponding states
     """
-    output_states = []
-    outputs = []
+    hidden_states = []
+    emissions = []
 
     # pick a random state to start with
     state_index = np.random.choice(len(states))
-    output_states.append(states[state_index])
+    hidden_states.append(states[state_index])
 
     for i in range(n):
-        # get column of probabilities corresponding to state
-        state_prob = transition_matrix[state_index]
+        # get list of probabilities corresponding to state
+        prob_list = transition_matrix[state_index]
 
-        # select transition
-        result = np.random.choice(len(state_prob), p=state_prob)
+        # select transition (obtain its index)
+        index = np.random.choice(len(prob_list), p=prob_list)
 
-        # figure out output and state corresponding to transition
-        output = math.floor(result/len(states))
-        state_index = result % len(states)
+        # figure out emission and hidden state corresponding to transition
+        emission = math.floor(index/len(states))
+        state_index = index % 2 # number of emission possibilities
 
-        output_states.append(states[state_index])
-        outputs.append(output)
+        hidden_states.append(states[state_index])
+        emissions.append(emission)
     
-    return output_states, outputs
+    return hidden_states, emissions
 
 
 def probability_rederivation(output_states: list, outputs: list):
