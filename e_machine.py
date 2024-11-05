@@ -21,10 +21,8 @@ def e_machine(states, transition_matrix, n: int):
     # state_index = np.random.choice(len(states))
     state_index = 1
     hidden_states.append(states[state_index])
-    print("starting state =", hidden_states)
 
     for i in range(n):
-        print("iteration", i)
         # see transition_encoding.jpg to see how this 3-D matrix is stored in 2-D
 
         # get column of probabilities corresponding to state
