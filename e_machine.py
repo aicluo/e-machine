@@ -18,8 +18,7 @@ def e_machine(states, transition_matrix, n: int):
     emissions = []
 
     # pick a random state to start with
-    # state_index = np.random.choice(len(states))
-    state_index = 1
+    state_index = np.random.choice(len(states))
     hidden_states.append(states[state_index])
 
     for i in range(n):
@@ -38,7 +37,7 @@ def e_machine(states, transition_matrix, n: int):
         emissions.append(emission)
 
         #similarly, we use the index to find the state it corresponds to per our transition encoding
-        state_index = result_index % 2
+        state_index = result_index % len(states)
         hidden_states.append(states[state_index])
 
     return hidden_states, emissions
