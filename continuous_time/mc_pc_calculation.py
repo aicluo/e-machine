@@ -11,6 +11,10 @@ from sklearn.linear_model import Ridge
 from sklearn.linear_model import LinearRegression
 import pandas as pd
 
+reservoir_type = "chaotic" # remember to change this to the right one!!!
+# should match with the naming convention of the saved hidden state file
+#e.g. for h_x_[reservoir name].pkl, it should be "[reservoir name]"
+
 #@title Functions for training readout layer
 
 def generate_offsets(input, reservoir_state, tau):
@@ -58,7 +62,7 @@ def testing_training_metrics(r2_train, r2_test, mse_train, mse_test):
 
   return df
 
-reservoir_type = "noisy_limit"
+
 
 def f(tau):
         with open('x_list.pkl', 'rb') as file:
@@ -82,31 +86,32 @@ if __name__ == "__main__":
     
     # without 
 
-    # print("Start Time:", time.ctime())
-    # start_time = time.time()
-    # r2 = []
-    # with open('x_list.pkl', 'rb') as file:
-    #         x_list = pickle.load(file)
-    # with open('h_x.pkl', 'rb') as file:
-    #         h_x = pickle.load(file)
-    # for i in tqdm(tau_range):
-    #     y, x = generate_offsets(x_list, h_x, tau = i)
-    #     # print("Offset:", tau)
-    #     # print("lengths:", len(y), len(x))
-    #     x = [[i] for i in x] # fix dimensions
-    #     model = LinearRegression()
-    #     model,r2_train, r2_test, mse_train, mse_test = train_model(x, y, model)
-    #     r2.append(r2_train)
-    # # print(r2)
-    # print("Without pooling,", time.time() - start_time, "to run")
+    print("Start Time:", time.ctime())
+    start_time = time.time()
+    r2 = []
+    with open('x_list.pkl', 'rb') as file:
+        x_list = pickle.load(file)
+    with open('h_x_'+reservoir_type+'.pkl', 'rb') as file:
+        h_x = pickle.load(file)
+    for i in tqdm(tau_range):
+        y, x = generate_offsets(x_list[1:], h_x, tau = i)
+        # print("Offset:", tau)
+        # print("lengths:", len(y), len(x))
+        x = [[i] for i in x] # fix dimensions
+        model = LinearRegression()
+        model,r2_train, r2_test, mse_train, mse_test = train_model(x, y, model)
+        r2.append(r2_train)
+    results = r2
+    # print(r2)
+    print("Without pooling,", time.time() - start_time, "to run")
     # plt.plot(tau_range, r2, 'o')
     # plt.savefig("1.png")
     # plt.clf()
     
-    start_time = time.time()
-    print("Start Time:", time.ctime())
-    with Pool() as pool:
-        results = pool.map(f, tau_range)
+    # start_time = time.time()
+    # print("Start Time:", time.ctime())
+    # with Pool() as pool:
+    #     results = pool.map(f, tau_range)
     
     with open('lorenz_'+reservoir_type+'_mcpc.pkl', 'wb') as file:
         pickle.dump(results, file)
