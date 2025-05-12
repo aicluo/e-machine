@@ -57,27 +57,29 @@ def generate_states_lorenz(reservoir=chaotic_reservoir,
   for i in tqdm(range(num_steps)):
       xyzs[i + 1] = xyzs[i] + lorenz(xyzs[i]) * dt
 
-  # set parameters of reservoir
-  random.seed(10)
-  beta = .2
-  theta = .9
-  n = 10
-  gamma = .1
-  tau = 18
-  h = np.array([0])
+  
+  # Parameters
+  beta = 0.2
+  gamma = 0.1
+  tau = 23.0
+  n = 10.0
+  t_span = int(num_steps*dt)  # Time steps
+  # dt = 0.01  # Time step size
+  t = np.arange(0, t_span, dt)
 
-  h_list = np.empty((num_steps + tau + 2, 1))
-  for i in range(tau):
-     h_list[i] = h
+  # Initial condition (you'll need to define this)
+  h0 = 1.0
+  h = np.zeros_like(t)
+  h[0] = h0
+
+
   x_list = xyzs.T[0]
+  
+  # Numerical solution using Euler method
+  for i in tqdm(range(1, len(t))):
+      h[i] = h[i-1] + dt * (beta * h[i-int(tau/dt)] / (1 + h[i-int(tau/dt)]**n) - gamma * h[i-1] + x_list[i-1])
 
-  print("Generating Reservoir States")
-  for i in tqdm(range(len(x_list))):
-    # see "defining different reservoirs" cell for more details on the reservoir
-    dh_dt = (beta*theta**n*h_list[i])/(theta**n + h**n) - gamma*h + x_list[i]
-    h_list[i+tau+1] = h_list[i+tau] + dh_dt*dt
-
-  return xyzs, h_list[tau:]
+  return xyzs, h
 
 if __name__ == "__main__":
 
@@ -88,7 +90,7 @@ if __name__ == "__main__":
     x_list = xyzs.T[0][2000:]
     y_list = xyzs.T[1][2000:]
     z_list = xyzs.T[2][2000:]
-    h_x = h_list.T[0][2000:]
+    h_x = h_list[1999:]
     print("Finished generating all states")
     print(time.time() - start_time, "seconds to run")
 
